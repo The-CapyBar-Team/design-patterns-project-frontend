@@ -90,19 +90,19 @@ namespace ClientBlazor.Services
                 .Max();
             return maxPosition + 1;
         }
-        private void UpdateQueuePosition(int productId, int newPosition)
+        private void UpdateQueuePosition(int productId)
         {
-            var item = _cartItems.FirstOrDefault(i => i.Product.Id == productId);
-            if (item != null)
-            {
-                item.QueuePosition = newPosition;
-                if (newPosition == 0)
-                {
-                    item.InStock = true;
-                }
-                SaveCartToLocalStorage();
-                NotifyStateChanged();
-            }
+            //var item = _cartItems.FirstOrDefault(i => i.Product.Id == productId);
+            //if (item != null)
+            //{
+            //    item.QueuePosition = newPosition;
+            //    if (newPosition == 0)
+            //    {
+            //        item.InStock = true;
+            //    }
+            //    SaveCartToLocalStorage();
+            //    NotifyStateChanged();
+            //}
         }
         private void NotifyStateChanged() => OnChange?.Invoke();
 
