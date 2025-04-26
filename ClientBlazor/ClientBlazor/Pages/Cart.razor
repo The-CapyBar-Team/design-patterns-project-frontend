@@ -1,0 +1,65 @@
+﻿@page "/cart"
+@using ClientBlazor.Models
+@using ClientBlazor.Services
+@inject CartService CartService
+@inject SessionService SessionService
+@implements IDisposable
+
+
+<h3>Shopping Cart</h3>
+@if (cartItems.Count == 0)
+{
+    <p>Your cart is empty.</p>
+}
+else
+{
+    @foreach (var item in cartItems)
+    {
+        <div class="card my-2 p-3">
+            <h5>@item.Product.Name</h5>
+            <p>@item.Product.Description</p>
+            <p>Price: @item.Product.Price.ToString("C")</p>
+            @if (item.InStock)
+            {
+                <p class="text-success">In stock</p>
+                <button class="btn btn-success">Complete the purchase</button>
+            }
+            else
+            {
+                <p class="text-danger">Out of stock — in queue</p>
+                <p>Your queue position: <strong>@item.QueuePosition</strong></p>
+            }
+            <button class="btn btn-danger mt-2" @onclick="() => RemoveFromCart(item.Product.Id)">Remove</button>
+        </div>
+    }
+}
+
+@code {
+    private List<CartItem> cartItems = new List<CartItem>();
+    private string _sessionId;
+
+    protected override void OnInitialized()
+    {
+        _sessionId = SessionService.GetOrCreateSessionId();
+        cartItems = CartService.CartItems.ToList();
+        CartService.OnChange += UpdateCartItems;
+    }
+
+    private void UpdateCartItems()
+    {
+        cartItems = CartService.CartItems.ToList();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        CartService.OnChange -= UpdateCartItems;
+    }
+
+
+    private async Task RemoveFromCart(int productId)
+    {
+        await CartService.RequestRemoveFromCartAsync(productId);
+    }
+
+}
