@@ -20,14 +20,17 @@ namespace ClientBlazor.Services
 
         private readonly HttpClient _http;
         private readonly SessionService _sessionService;
+        private readonly ProductService _productService;
 
-        public CartService(ILocalStorageService localStorage, HttpClient http, SessionService sessionService, QueueNotificationService queueNotificationService)
+        public CartService(ILocalStorageService localStorage, HttpClient http, SessionService sessionService, ProductService productService, QueueNotificationService queueNotificationService)
         {
             _localStorage = localStorage;
             _http = http;
             _sessionService = sessionService;
+            _productService = productService;
 
             queueNotificationService.OnQueuePositionUpdated += UpdateQueuePosition;
+            queueNotificationService.OnLostProduct += RemoveFromCart;
 
             InitializeCart();
 
@@ -45,25 +48,6 @@ namespace ClientBlazor.Services
             }
         }
 
-        public void AddToCartAsync(Product product)
-        {
-            var existingItem = _cartItems.FirstOrDefault(item => item.Product.Id == product.Id);
-            if (existingItem == null)
-            {
-                var newItem = new CartItem
-                {
-                    Product = product,
-                    InStock = product.Stock > 0,
-                    QueuePosition = product.Stock > 0 ? 0 : GetNextQueuePosition() //TODO get correct place from server
-                };
-                _cartItems.Add(newItem);
-
-                SaveCartToLocalStorage();
-
-                NotifyStateChanged();
-            }
-        }
-
         private void RemoveFromCart(int productId)
         {
             var item = _cartItems.FirstOrDefault(item => item.Product.Id == productId);
@@ -71,7 +55,6 @@ namespace ClientBlazor.Services
             {
                 _cartItems.Remove(item);
                 SaveCartToLocalStorage();
-
                 NotifyStateChanged();
             }
         }
@@ -81,28 +64,25 @@ namespace ClientBlazor.Services
             _localStorage.SetItem(CART_STORAGE_KEY, _cartItems);
         }
 
-        private int GetNextQueuePosition()
+        private void UpdateQueuePosition(QueuePositionUpdateMessage message)
         {
-            var maxPosition = _cartItems
-                .Where(item => !item.InStock)
-                .Select(item => item.QueuePosition)
-                .DefaultIfEmpty(0)
-                .Max();
-            return maxPosition + 1;
-        }
-        private void UpdateQueuePosition(int productId)
-        {
-            //var item = _cartItems.FirstOrDefault(i => i.Product.Id == productId);
-            //if (item != null)
-            //{
-            //    item.QueuePosition = newPosition;
-            //    if (newPosition == 0)
-            //    {
-            //        item.InStock = true;
-            //    }
-            //    SaveCartToLocalStorage();
-            //    NotifyStateChanged();
-            //}
+            var item = _cartItems.FirstOrDefault(item => item.Product.Id == message.ProductId);
+            if (item == null)
+            {
+                var product = _productService.CachedProducts?.FirstOrDefault(item => item.Id == message.ProductId);
+                if (product != null)
+                {
+                    CartItem cartItem = new CartItem(product, !message.HasQueuePosition, message.QueuePosition);
+                    _cartItems.Add(cartItem);
+                    SaveCartToLocalStorage();
+                    NotifyStateChanged();
+                }
+            }
+            else
+            {
+                item.InStock = !message.HasQueuePosition;
+                item.QueuePosition = message.QueuePosition;
+            }
         }
         private void NotifyStateChanged() => OnChange?.Invoke();
 
@@ -112,11 +92,11 @@ namespace ClientBlazor.Services
 
             var request = new ProductRequest
             {
-                SessionId = sessionId,
+                UserId = sessionId,
                 ProductId = productId
             };
 
-            var response = await _http.PostAsJsonAsync("cart/remove", request);
+            var response = await _http.PostAsJsonAsync("basket/remove", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -133,20 +113,34 @@ namespace ClientBlazor.Services
 
             var request = new ProductRequest
             {
-                SessionId = sessionId,
+                UserId = sessionId,
                 ProductId = product.Id
             };
 
-            var response = await _http.PostAsJsonAsync("cart/add", request);
-            //TODO uncomment and complete
-            //if (response.IsSuccessStatusCode)
-            //{
-            //    AddToCartAsync(product); // локально добавим
-            //}
-            //else
-            //{
-            //    Console.WriteLine("Failed to add item to server cart.");
-            //}
+            _ = await _http.PostAsJsonAsync("basket/add", request);
+            
+            
+        }
+        public async Task RequestBuyFromCartAsync(int productId)
+        {
+            var sessionId = _sessionService.GetOrCreateSessionId();
+
+            var request = new ProductRequest
+            {
+                UserId = sessionId,
+                ProductId = productId
+            };
+
+            var response = await _http.PostAsJsonAsync("basket/buy", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                RemoveFromCart(productId);
+            }
+            else
+            {
+                Console.WriteLine("Failed to buy item from server.");
+            }
         }
     }
 }

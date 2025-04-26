@@ -13,6 +13,8 @@ namespace ClientBlazor.Services
             _http = http;
         }
 
+        public List<Product>? CachedProducts { get => _cachedProducts;}
+
         public async Task<List<Product>> GetProductsAsync()
         {
             if (_cachedProducts == null)

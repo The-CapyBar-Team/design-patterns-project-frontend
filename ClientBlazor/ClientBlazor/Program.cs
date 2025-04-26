@@ -1,6 +1,7 @@
 using ClientBlazor.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 
 namespace ClientBlazor
@@ -13,7 +14,7 @@ namespace ClientBlazor
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
             builder.Services.AddLocalStorageServices();
-            var backendUrl = builder.Configuration["BackendUrl"] ?? "localhost:5140/api";
+            var backendUrl = builder.Configuration["BackendUrl"] ?? "http://127.0.0.1:5140/api/";
             builder.Services.AddScoped(sp => new HttpClient
             {
                 BaseAddress = new Uri(backendUrl)
@@ -34,6 +35,7 @@ namespace ClientBlazor
                     sp.GetRequiredService<ILocalStorageService>(),
                     sp.GetRequiredService<HttpClient>(),
                     sp.GetRequiredService<SessionService>(),
+                    sp.GetRequiredService<ProductService>(),
                     sp.GetRequiredService<QueueNotificationService>()));
 
             await builder.Build().RunAsync();

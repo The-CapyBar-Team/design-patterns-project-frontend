@@ -2,7 +2,7 @@
 {
     public class ProductRequest
     {
-        public string SessionId { get; set; }
+        public string UserId { get; set; }
         public int ProductId { get; set; }
     }
 }

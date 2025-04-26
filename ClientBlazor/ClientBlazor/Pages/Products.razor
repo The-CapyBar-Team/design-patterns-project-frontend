@@ -7,8 +7,8 @@
 @inject SessionService SessionService
 @inject ProductService ProductService
 
-<div class="container mt-4">
-    <h2 class="mb-4">Products</h2>
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">Products</h1>
 
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" style="max-height: 80vh; overflow-y: auto;">
         @foreach (var product in products)
@@ -31,16 +31,7 @@
 </div>
 @code {
     private List<Product> products = new List<Product>();
-    // {
-    //     new Product(1, "Product A", "Description for A", 9.99f, 10),
-    //     new Product(2, "Product B", "Description for B", 19.99f, 5),
-    //     new Product(3, "Product C", "Description for C", 14.49f, 0),
-    //     new Product(4, "Product D", "Description for D", 5.75f, 8),
-    //     new Product(5, "Product E", "Description for E", 25.00f, 0),
-    //     new Product(6, "Product F", "Description for F", 7.80f, 15),
-    //     new Product(7, "Product G", "Description for G", 12.00f, 3),
-    //     new Product(8, "Product H", "Description for H", 30.00f, 7)
-    // };
+
     private string _sessionId;
 
     protected override void OnInitialized()

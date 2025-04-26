@@ -3,12 +3,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using ClientBlazor.Models;
 using ClientBlazor.Services;
-public class QueueNotificationService : IAsyncDisposable
+namespace ClientBlazor.Services
+{
+    public class QueueNotificationService : IAsyncDisposable
     {
         private readonly SessionService _sessionService;
         private HubConnection _hubConnection;
         private readonly string _hubUrl;
-        public event Action<int> OnQueuePositionUpdated;
+        public event Action<QueuePositionUpdateMessage> OnQueuePositionUpdated;
+        public event Action<int> OnLostProduct;
 
         public QueueNotificationService(SessionService sessionService, string backendUrl)
         {
@@ -27,14 +30,16 @@ public class QueueNotificationService : IAsyncDisposable
                     })
                     .WithAutomaticReconnect()
                     .Build();
-            await _hubConnection.InvokeAsync("SubscribeToNotifications", _sessionService.GetOrCreateSessionId());
+                await _hubConnection.InvokeAsync("SubscribeToNotifications", _sessionService.GetOrCreateSessionId());
 
-            _hubConnection.On<int>("UpdateQueuePosition", (productId) =>
+                _hubConnection.On<QueuePositionUpdateMessage>("QueuePositionUpdate", (message) =>
                 {
-                    Console.WriteLine($"Received queue update for product {productId}");
-                    OnQueuePositionUpdated?.Invoke(productId);
+                    OnQueuePositionUpdated?.Invoke(message);
                 });
-
+                _hubConnection.On<int>("LostProduct", (productId) =>
+                {
+                    OnLostProduct?.Invoke(productId);
+                });
                 await _hubConnection.StartAsync();
                 Console.WriteLine("SignalR connection established");
             }
@@ -50,3 +55,5 @@ public class QueueNotificationService : IAsyncDisposable
             }
         }
     }
+
+}
