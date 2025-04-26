@@ -47,11 +47,10 @@
     {
         _sessionId = SessionService.GetOrCreateSessionId();
     }
-    private List<Product>? products1;
 
     protected override async Task OnInitializedAsync()
     {
-        products1 = await ProductService.GetProductsAsync();
+        products = await ProductService.GetProductsAsync();
     }
     private async Task AddToCart(Product product)
     {
