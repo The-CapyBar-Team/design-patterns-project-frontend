@@ -17,7 +17,7 @@ namespace ClientBlazor.Services
         {
             if (_cachedProducts == null)
             {
-                _cachedProducts = await _http.GetFromJsonAsync<List<Product>>("products")
+                _cachedProducts = await _http.GetFromJsonAsync<List<Product>>("allproducts")
                                  ?? new List<Product>();
             }
             return _cachedProducts;

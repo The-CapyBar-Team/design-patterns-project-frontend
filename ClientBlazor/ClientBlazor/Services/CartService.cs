@@ -116,7 +116,7 @@ namespace ClientBlazor.Services
                 ProductId = productId
             };
 
-            var response = await _http.PostAsJsonAsync("/api/cart/remove", request);
+            var response = await _http.PostAsJsonAsync("cart/remove", request);
 
             if (response.IsSuccessStatusCode)
             {
