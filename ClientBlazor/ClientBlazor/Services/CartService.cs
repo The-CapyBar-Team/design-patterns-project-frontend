@@ -57,7 +57,7 @@ namespace ClientBlazor.Services
             foreach (var item in items) 
             {
                 var product = _productService.CachedProducts?.FirstOrDefault(prod => prod.Id == item.ProductId);
-                CartItem cartItem = new CartItem(product, !item.HasQueuePosition, item.QueuePosition);
+                CartItem cartItem = new CartItem(product, !item.HasQueuePosition, item.QueuePosition, item.AcquisitionTime);
                 _cartItems.Add(cartItem);
             }
             NotifyStateChanged();
@@ -80,7 +80,7 @@ namespace ClientBlazor.Services
                 var product = _productService.CachedProducts?.FirstOrDefault(item => item.Id == message.ProductId);
                 if (product != null)
                 {
-                    CartItem cartItem = new CartItem(product, !message.HasQueuePosition, message.QueuePosition);
+                    CartItem cartItem = new CartItem(product, !message.HasQueuePosition, message.QueuePosition, message.AcquisitionTime);
                     _cartItems.Add(cartItem);
                 }
             }

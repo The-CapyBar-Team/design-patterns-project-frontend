@@ -22,6 +22,7 @@ else
             @if (item.InStock)
             {
                 <p class="text-success">In stock</p>
+                <p>Expires in: <strong>@GetRemainingTime(item.AcquisitionTime)</strong></p>
                 <button class="btn btn-success">Complete the purchase</button>
             }
             else
@@ -37,12 +38,22 @@ else
 @code {
     private List<CartItem> cartItems = new List<CartItem>();
     private string _sessionId;
+    private System.Threading.Timer? _timer;
 
     protected override void OnInitialized()
     {
         _sessionId = SessionService.GetOrCreateSessionId();
         cartItems = CartService.CartItems.ToList();
+
         CartService.OnChange += UpdateCartItems;
+
+        _timer = new System.Threading.Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }, null, 0, 1000); 
     }
 
     private void UpdateCartItems()
@@ -54,12 +65,21 @@ else
     public void Dispose()
     {
         CartService.OnChange -= UpdateCartItems;
+        _timer?.Dispose();
     }
-
 
     private async Task RemoveFromCart(int productId)
     {
         await CartService.RequestRemoveFromCartAsync(productId);
     }
+    private string GetRemainingTime(long acquisitionTime)
+    {
+        var expiration = DateTimeOffset.FromUnixTimeSeconds(acquisitionTime).AddMinutes(10);
+        var remaining = expiration - DateTimeOffset.UtcNow;
 
+        if (remaining <= TimeSpan.Zero)
+            return "Expired";
+
+        return $"{remaining.Minutes:D2}:{remaining.Seconds:D2}";
+    }
 }
