@@ -45,6 +45,6 @@
     }
     private async Task AddToCart(Product product)
     {
-     //   await CartService.AddToCartAsync(product);
+        await CartService.RequestAddToCartAsync(product);
     }
 }
