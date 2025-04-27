@@ -12,6 +12,7 @@ namespace ClientBlazor.Services
         private readonly string _hubUrl;
         public event Action<QueuePositionUpdateMessage> OnQueuePositionUpdated;
         public event Action<int> OnLostProduct;
+        public event Action<QueuePositionUpdateMessage[]> OnLoadAllCart; 
 
         public QueueNotificationService(SessionService sessionService, string backendUrl)
         {
@@ -40,6 +41,11 @@ namespace ClientBlazor.Services
                 {
                     OnLostProduct?.Invoke(productId);
                 });
+                _hubConnection.On<QueuePositionUpdateMessage[]>("ProductStatusUpdates", (array) =>
+                {
+                    OnLoadAllCart?.Invoke(array);
+                });
+
                 await _hubConnection.StartAsync();
                 Console.WriteLine("SignalR connection established");
             }

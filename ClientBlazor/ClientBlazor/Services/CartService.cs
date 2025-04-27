@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using System.Linq;
 using static System.Net.WebRequestMethods;
 using System.Net.Http.Json;
+using ClientBlazor.Pages;
 
 namespace ClientBlazor.Services
 {
     public class CartService
     {
-        private readonly ILocalStorageService _localStorage;
         private List<CartItem> _cartItems = new List<CartItem>();
         private const string CART_STORAGE_KEY = "blazor_cart_items";
 
@@ -24,44 +24,52 @@ namespace ClientBlazor.Services
 
         public CartService(ILocalStorageService localStorage, HttpClient http, SessionService sessionService, ProductService productService, QueueNotificationService queueNotificationService)
         {
-            _localStorage = localStorage;
             _http = http;
             _sessionService = sessionService;
             _productService = productService;
 
             queueNotificationService.OnQueuePositionUpdated += UpdateQueuePosition;
             queueNotificationService.OnLostProduct += RemoveFromCart;
+            queueNotificationService.OnLoadAllCart += UpdateAllCart;
 
-            InitializeCart();
+            AskForCartData();
 
             _ = queueNotificationService.InitializeConnectionAsync();
         }
 
 
-        private void InitializeCart()
+        private async void AskForCartData()
         {
-            var storedItems = _localStorage.GetItem<List<CartItem>>(CART_STORAGE_KEY);
-            if (storedItems != null)
+            if (_cartItems.Count == 0)
             {
-                _cartItems = storedItems;
-                NotifyStateChanged();
+                var userId = _sessionService.GetOrCreateSessionId();
+
+                var request = new StatusRequest
+                {
+                    UserId = userId,
+                };
+
+                await _http.PostAsJsonAsync("basket/status", request);
             }
         }
-
+        private void UpdateAllCart(QueuePositionUpdateMessage[] items)
+        {
+            foreach (var item in items) 
+            {
+                var product = _productService.CachedProducts?.FirstOrDefault(prod => prod.Id == item.ProductId);
+                CartItem cartItem = new CartItem(product, !item.HasQueuePosition, item.QueuePosition);
+                _cartItems.Add(cartItem);
+            }
+            NotifyStateChanged();
+        }
         private void RemoveFromCart(int productId)
         {
             var item = _cartItems.FirstOrDefault(item => item.Product.Id == productId);
             if (item != null)
             {
                 _cartItems.Remove(item);
-                SaveCartToLocalStorage();
                 NotifyStateChanged();
             }
-        }
-
-        private void SaveCartToLocalStorage()
-        {
-            _localStorage.SetItem(CART_STORAGE_KEY, _cartItems);
         }
 
         private void UpdateQueuePosition(QueuePositionUpdateMessage message)
@@ -74,8 +82,6 @@ namespace ClientBlazor.Services
                 {
                     CartItem cartItem = new CartItem(product, !message.HasQueuePosition, message.QueuePosition);
                     _cartItems.Add(cartItem);
-                    SaveCartToLocalStorage();
-                    NotifyStateChanged();
                 }
             }
             else
@@ -83,16 +89,17 @@ namespace ClientBlazor.Services
                 item.InStock = !message.HasQueuePosition;
                 item.QueuePosition = message.QueuePosition;
             }
+            NotifyStateChanged();
         }
         private void NotifyStateChanged() => OnChange?.Invoke();
 
         public async Task RequestRemoveFromCartAsync(int productId)
         {
-            var sessionId = _sessionService.GetOrCreateSessionId();
+            var userId = _sessionService.GetOrCreateSessionId();
 
             var request = new ProductRequest
             {
-                UserId = sessionId,
+                UserId = userId,
                 ProductId = productId
             };
 
@@ -109,11 +116,11 @@ namespace ClientBlazor.Services
         }
         public async Task RequestAddToCartAsync(Product product)
         {
-            var sessionId = _sessionService.GetOrCreateSessionId();
+            var userId = _sessionService.GetOrCreateSessionId();
 
             var request = new ProductRequest
             {
-                UserId = sessionId,
+                UserId = userId,
                 ProductId = product.Id
             };
 
