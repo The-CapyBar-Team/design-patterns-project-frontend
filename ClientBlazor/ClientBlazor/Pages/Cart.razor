@@ -23,7 +23,7 @@ else
             {
                 <p class="text-success">In stock</p>
                 <p>Expires in: <strong>@GetRemainingTime(item.AcquisitionTime)</strong></p>
-                <button class="btn btn-success">Complete the purchase</button>
+                <button class="btn btn-success" @onclick="() => BuyFromCart(item.Product.Id)">Complete the purchase</button>
             }
             else
             {
@@ -70,6 +70,12 @@ else
     {
         await CartService.RequestRemoveFromCartAsync(productId);
     }
+
+    private async Task BuyFromCart(int productId)
+    {
+        await CartService.RequestBuyFromCartAsync(productId);
+    }
+
     private string GetRemainingTime(long acquisitionTime)
     {
         var expiration = DateTimeOffset.FromUnixTimeSeconds(acquisitionTime).AddMinutes(10);
