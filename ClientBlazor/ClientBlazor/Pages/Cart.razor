@@ -44,15 +44,13 @@ else
     {
         _sessionId = SessionService.GetOrCreateSessionId();
         cartItems = CartService.CartItems.ToList();
+        
 
         CartService.OnChange += UpdateCartItems;
 
-        _timer = new System.Threading.Timer(async _ =>
+        _timer = new System.Threading.Timer(_ =>
         {
-            await InvokeAsync(() =>
-            {
-                StateHasChanged();
-            });
+            InvokeAsync(StateHasChanged);
         }, null, 0, 1000); 
     }
 
