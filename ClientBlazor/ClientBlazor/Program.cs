@@ -14,7 +14,7 @@ namespace ClientBlazor
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
             builder.Services.AddLocalStorageServices();
-            var backendUrl = builder.Configuration["BackendUrl"] ?? "http://127.0.0.1:5140/api/";
+            var backendUrl = builder.Configuration["BackendUrl"] ?? "http://127.0.0.1:8080/api/";
             builder.Services.AddScoped(sp => new HttpClient
             {
                 BaseAddress = new Uri(backendUrl)

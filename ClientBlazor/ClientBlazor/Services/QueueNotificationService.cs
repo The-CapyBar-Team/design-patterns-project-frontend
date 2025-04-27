@@ -17,7 +17,7 @@ namespace ClientBlazor.Services
         public QueueNotificationService(SessionService sessionService, string backendUrl)
         {
             _sessionService = sessionService;
-            _hubUrl = $"{backendUrl}/notifications";
+            _hubUrl = $"{backendUrl}notifications";
         }
 
         public async Task InitializeConnectionAsync()
@@ -31,6 +31,7 @@ namespace ClientBlazor.Services
                     })
                     .WithAutomaticReconnect()
                     .Build();
+                await _hubConnection.StartAsync();
                 await _hubConnection.InvokeAsync("SubscribeToNotifications", _sessionService.GetOrCreateSessionId());
 
                 _hubConnection.On<QueuePositionUpdateMessage>("QueuePositionUpdate", (message) =>
