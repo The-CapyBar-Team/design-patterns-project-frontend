@@ -4,9 +4,9 @@
 @inject CartService CartService
 @inject SessionService SessionService
 @implements IDisposable
-
-
-<h3>Shopping Cart</h3>
+<PageTitle>Cart</PageTitle>
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">Shopping Cart</h1>
 @if (cartItems.Count == 0)
 {
     <p>Your cart is empty.</p>
@@ -34,7 +34,7 @@ else
         </div>
     }
 }
-
+</div>
 @code {
     private List<CartItem> cartItems = new List<CartItem>();
     private string _sessionId;
