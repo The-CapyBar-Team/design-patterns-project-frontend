@@ -21,7 +21,7 @@
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">@product.Name</h5>
                         <p class="card-text text-muted">@product.Description</p>
-                        <p class="mt-auto fw-bold">@product.Price.ToString("C", CultureInfo.CurrentCulture)</p>
+                        <p class="mt-auto fw-bold">@product.Price.ToString("C", CultureInfo.GetCultureInfo("en-US"))</p>
                         <button class="btn btn-primary w-100 mt-2" @onclick="@(() => AddToCart(product))">Add to cart</button>
                     </div>
                 </div>
