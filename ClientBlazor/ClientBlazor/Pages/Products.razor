@@ -22,7 +22,11 @@
                         <h5 class="card-title">@product.Name</h5>
                         <p class="card-text text-muted">@product.Description</p>
                         <p class="mt-auto fw-bold">@product.Price.ToString("C", CultureInfo.GetCultureInfo("en-US"))</p>
-                        <button class="btn btn-primary w-100 mt-2" @onclick="@(() => AddToCart(product))">Add to cart</button>
+                        <button class="btn btn-primary w-100 mt-2"
+                                @onclick="@(() => AddToCart(product))"
+                                disabled="@IsInCart(product)">
+                                @((IsInCart(product)) ? "Already in Cart" : "Add to cart")
+                        </button>
                     </div>
                 </div>
             </div>
@@ -37,6 +41,7 @@
     protected override void OnInitialized()
     {
         _sessionId = SessionService.GetOrCreateSessionId();
+        CartService.OnChange += OnCartChanged;
     }
 
     protected override async Task OnInitializedAsync()
@@ -46,5 +51,16 @@
     private async Task AddToCart(Product product)
     {
         await CartService.RequestAddToCartAsync(product);
+    }
+    private bool IsInCart(Product product)
+    {
+        if (CartService.CartItems == null)
+            return false;
+        return CartService.CartItems.Any(item => item.Product.Id == product.Id);
+    }
+
+    private void OnCartChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 }
