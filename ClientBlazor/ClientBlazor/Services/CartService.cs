@@ -102,6 +102,7 @@ namespace ClientBlazor.Services
             {
                 item.InStock = !message.HasQueuePosition;
                 item.QueuePosition = (message.QueuePosition + 1);
+                item.AcquisitionTime = message.AcquisitionTime;
             }
             NotifyStateChanged();
         }
