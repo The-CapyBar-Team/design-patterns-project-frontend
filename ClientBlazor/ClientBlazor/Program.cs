@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ClientBlazor
 {
@@ -22,7 +23,7 @@ namespace ClientBlazor
             });
 
             builder.Services.AddScoped<ProductService>();
-           
+            
             
             builder.Services.AddScoped<SessionService>();
 

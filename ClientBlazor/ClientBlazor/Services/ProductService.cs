@@ -1,5 +1,8 @@
 ﻿using ClientBlazor.Models;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace ClientBlazor.Services
 {
@@ -17,8 +20,16 @@ namespace ClientBlazor.Services
 
         public async Task<List<Product>> GetProductsAsync()
         {
-            _cachedProducts = await _http.GetFromJsonAsync<List<Product>>("allproducts") ?? new List<Product>();
-
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Formatting = Formatting.Indented
+            };
+           
+            var response = await _http.GetAsync("allproducts");
+            string json = await response.Content.ReadAsStringAsync();
+            _cachedProducts = JsonConvert.DeserializeObject<List<Product>>(json, settings);
+            //_cachedProducts = new List<Product>();
             return _cachedProducts;
         }
 

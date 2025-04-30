@@ -6,6 +6,11 @@ using System.Linq;
 using static System.Net.WebRequestMethods;
 using System.Net.Http.Json;
 using ClientBlazor.Pages;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace ClientBlazor.Services
 {
@@ -21,6 +26,12 @@ namespace ClientBlazor.Services
         private readonly HttpClient _http;
         private readonly SessionService _sessionService;
         private readonly ProductService _productService;
+
+        private readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Formatting = Formatting.Indented
+        };
 
         public CartService(ILocalStorageService localStorage, HttpClient http, SessionService sessionService, ProductService productService, QueueNotificationService queueNotificationService)
         {
@@ -42,14 +53,17 @@ namespace ClientBlazor.Services
         {
             if (_cartItems.Count == 0)
             {
-                var userId = _sessionService.GetOrCreateSessionId();
+                string userId = _sessionService.GetOrCreateSessionId();
 
-                var request = new StatusRequest
+                StatusRequest request = new StatusRequest
                 {
                     UserId = userId,
                 };
+                
+                string json = JsonConvert.SerializeObject(request, serializerSettings);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                await _http.PostAsync("basket/status", content);
 
-                await _http.PostAsJsonAsync("basket/status", request);
             }
         }
         private void UpdateAllCart(QueuePositionUpdateMessage[] items)
@@ -103,7 +117,10 @@ namespace ClientBlazor.Services
                 ProductId = productId
             };
 
-            var response = await _http.PostAsJsonAsync("basket/remove", request);
+            string json = JsonConvert.SerializeObject(request, serializerSettings);
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _http.PostAsync("basket/remove", content);
+            //var response = await _http.PostAsJsonAsync("basket/remove", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -124,7 +141,10 @@ namespace ClientBlazor.Services
                 ProductId = product.Id
             };
 
-            _ = await _http.PostAsJsonAsync("basket/add", request);
+            string json = JsonConvert.SerializeObject(request, serializerSettings);
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            await _http.PostAsync("basket/add", content);
+            //_ = await _http.PostAsJsonAsync("basket/add", request);
             
             
         }
@@ -138,7 +158,10 @@ namespace ClientBlazor.Services
                 ProductId = productId
             };
 
-            var response = await _http.PostAsJsonAsync("basket/buy", request);
+            string json = JsonConvert.SerializeObject(request, serializerSettings);
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _http.PostAsync("basket/buy", content);
+            //var response = await _http.PostAsJsonAsync("basket/buy", request);
 
             if (response.IsSuccessStatusCode)
             {
