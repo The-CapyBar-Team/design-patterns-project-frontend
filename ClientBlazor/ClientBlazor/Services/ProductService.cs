@@ -6,14 +6,14 @@ namespace ClientBlazor.Services
     public class ProductService
     {
         private readonly HttpClient _http;
-        private List<Product>? _cachedProducts;
+        private List<Product> _cachedProducts;
 
         public ProductService(HttpClient http)
         {
             _http = http;
         }
 
-        public List<Product>? CachedProducts { get => _cachedProducts;}
+        public List<Product> CachedProducts { get => _cachedProducts;}
 
         public async Task<List<Product>> GetProductsAsync()
         {

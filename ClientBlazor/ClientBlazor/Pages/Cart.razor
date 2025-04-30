@@ -38,7 +38,7 @@ else
 @code {
     private List<CartItem> cartItems = new List<CartItem>();
     private string _sessionId;
-    private System.Threading.Timer? _timer;
+    private System.Threading.Timer _timer;
 
     protected override void OnInitialized()
     {
@@ -63,7 +63,7 @@ else
     public void Dispose()
     {
         CartService.OnChange -= UpdateCartItems;
-        _timer?.Dispose();
+        _timer.Dispose();
     }
 
     private async Task RemoveFromCart(int productId)

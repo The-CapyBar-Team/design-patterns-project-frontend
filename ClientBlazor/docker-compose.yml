@@ -1,0 +1,14 @@
+services:
+  clientblazor:
+    build:
+      context: .
+      dockerfile: ./ClientBlazor/Dockerfile
+    ports:
+      - "8888:8080"
+    restart: always
+    networks:
+      - microservice_network
+
+networks:
+  microservice_network:
+    driver: bridge

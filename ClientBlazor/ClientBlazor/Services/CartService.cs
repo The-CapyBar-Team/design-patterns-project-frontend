@@ -14,7 +14,7 @@ namespace ClientBlazor.Services
         private List<CartItem> _cartItems = new List<CartItem>();
         private const string CART_STORAGE_KEY = "blazor_cart_items";
 
-        public event Action? OnChange;
+        public event Action OnChange;
 
         public IReadOnlyList<CartItem> CartItems => _cartItems;
 

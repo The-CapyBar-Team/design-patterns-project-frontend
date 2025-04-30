@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using System.Text.Json;
 
 namespace ClientBlazor
 {
@@ -21,6 +22,14 @@ namespace ClientBlazor
             });
 
             builder.Services.AddScoped<ProductService>();
+            
+
+            //builder.Services.AddSingleton(new JsonSerializerOptions
+            //{
+            //    PropertyNameCaseInsensitive = true,
+            //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            //    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+            //});
 
             
             builder.Services.AddScoped<SessionService>();
