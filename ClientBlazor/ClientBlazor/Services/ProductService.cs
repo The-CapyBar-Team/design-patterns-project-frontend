@@ -17,7 +17,6 @@ namespace ClientBlazor.Services
 
         public async Task<List<Product>> GetProductsAsync()
         {
-            Console.WriteLine("Getting products from server brrrrrrrr");
             _cachedProducts = await _http.GetFromJsonAsync<List<Product>>("allproducts") ?? new List<Product>();
 
             return _cachedProducts;
