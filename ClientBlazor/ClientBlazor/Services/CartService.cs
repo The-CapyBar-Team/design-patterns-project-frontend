@@ -87,7 +87,7 @@ namespace ClientBlazor.Services
             else
             {
                 item.InStock = !message.HasQueuePosition;
-                item.QueuePosition = message.QueuePosition;
+                item.QueuePosition = (message.QueuePosition + 1);
             }
             NotifyStateChanged();
         }
