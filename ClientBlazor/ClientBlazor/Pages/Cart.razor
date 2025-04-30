@@ -28,7 +28,7 @@ else
             else
             {
                 <p class="text-danger">Out of stock — in queue</p>
-                <p>Your queue position: <strong>(@item.QueuePosition + 1)</strong></p>
+                <p>Your queue position: <strong>@item.QueuePosition</strong></p>
             }
             <button class="btn btn-danger mt-2" @onclick="() => RemoveFromCart(item.Product.Id)">Remove</button>
         </div>
