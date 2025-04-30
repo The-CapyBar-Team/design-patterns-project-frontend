@@ -7,5 +7,6 @@
         public bool HasQueuePosition { get; set; }
         public int ProductId {  get; set; } 
         public uint QueuePosition {  get; set; }
+        public int AvailableStock { get; set; }
     }
 }
