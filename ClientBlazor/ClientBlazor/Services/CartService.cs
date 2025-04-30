@@ -80,7 +80,7 @@ namespace ClientBlazor.Services
                 var product = _productService.CachedProducts?.FirstOrDefault(item => item.Id == message.ProductId);
                 if (product != null)
                 {
-                    CartItem cartItem = new CartItem(product, !message.HasQueuePosition, message.QueuePosition, message.AcquisitionTime);
+                    CartItem cartItem = new CartItem(product, !message.HasQueuePosition, (message.QueuePosition + 1), message.AcquisitionTime);
                     _cartItems.Add(cartItem);
                 }
             }
