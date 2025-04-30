@@ -14,10 +14,8 @@ namespace ClientBlazor.Services
 
         public string GetOrCreateSessionId()
         {
-            // Пытаемся получить ID из localStorage
             var sessionId = _localStorage.GetItem<string>(SESSION_ID_KEY);
 
-            // Если ID нет — создаём новый и сохраняем
             if (string.IsNullOrEmpty(sessionId))
             {
                 sessionId = Guid.NewGuid().ToString();

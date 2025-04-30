@@ -22,15 +22,7 @@ namespace ClientBlazor
             });
 
             builder.Services.AddScoped<ProductService>();
-            
-
-            //builder.Services.AddSingleton(new JsonSerializerOptions
-            //{
-            //    PropertyNameCaseInsensitive = true,
-            //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            //    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-            //});
-
+           
             
             builder.Services.AddScoped<SessionService>();
 
