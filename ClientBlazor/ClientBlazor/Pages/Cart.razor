@@ -23,7 +23,6 @@ else
             @if (item.InStock)
             {
                 <p class="text-success">In stock</p>
-                <p class="text-secondary">Remaining items: <strong>@item.AvailableStock</strong></p>
                 <p>Expires in: <strong>@GetRemainingTime(item.AcquisitionTime)</strong></p>
                 <button class="btn btn-success" @onclick="() => BuyFromCart(item.Product.Id)">Complete the purchase</button>
             }
