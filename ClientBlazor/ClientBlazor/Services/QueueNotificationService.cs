@@ -47,7 +47,6 @@ namespace ClientBlazor.Services
                     OnLoadAllCart?.Invoke(array);
                 });
 
-                await _hubConnection.StartAsync();
                 Console.WriteLine("SignalR connection established");
             }
         }

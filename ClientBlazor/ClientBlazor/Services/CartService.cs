@@ -26,6 +26,7 @@ namespace ClientBlazor.Services
         private readonly HttpClient _http;
         private readonly SessionService _sessionService;
         private readonly ProductService _productService;
+        private QueueNotificationService queueNotificationService;
 
         private readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
@@ -38,19 +39,20 @@ namespace ClientBlazor.Services
             _http = http;
             _sessionService = sessionService;
             _productService = productService;
+            this.queueNotificationService = queueNotificationService;
 
             queueNotificationService.OnQueuePositionUpdated += UpdateQueuePosition;
             queueNotificationService.OnLostProduct += RemoveFromCart;
             queueNotificationService.OnLoadAllCart += UpdateAllCart;
 
             AskForCartData();
-
-            _ = queueNotificationService.InitializeConnectionAsync();
         }
 
 
         private async void AskForCartData()
         {
+            await queueNotificationService.InitializeConnectionAsync();
+
             if (_cartItems.Count == 0)
             {
                 string userId = _sessionService.GetOrCreateSessionId();
@@ -66,12 +68,16 @@ namespace ClientBlazor.Services
 
             }
         }
-        private void UpdateAllCart(QueuePositionUpdateMessage[] items)
+        private async void UpdateAllCart(QueuePositionUpdateMessage[] items)
         {
+            if(_productService.CachedProducts == null)
+            {
+                await _productService.GetProductsAsync();
+            }
             foreach (var item in items) 
             {
                 var product = _productService.CachedProducts?.FirstOrDefault(prod => prod.Id == item.ProductId);
-                CartItem cartItem = new CartItem(product, !item.HasQueuePosition, item.QueuePosition, item.AcquisitionTime, item.AvailableStock);
+                CartItem cartItem = new CartItem(product, !item.HasQueuePosition, item.QueuePosition + 1, item.AcquisitionTime, item.AvailableStock);
                 _cartItems.Add(cartItem);
             }
             NotifyStateChanged();

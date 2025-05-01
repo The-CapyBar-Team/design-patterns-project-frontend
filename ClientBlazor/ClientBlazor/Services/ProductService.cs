@@ -29,7 +29,6 @@ namespace ClientBlazor.Services
             var response = await _http.GetAsync("allproducts");
             string json = await response.Content.ReadAsStringAsync();
             _cachedProducts = JsonConvert.DeserializeObject<List<Product>>(json, settings);
-            //_cachedProducts = new List<Product>();
             return _cachedProducts;
         }
 
